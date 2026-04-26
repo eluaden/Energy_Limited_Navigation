@@ -1,2 +1,2 @@
 # Energy_Limited_Navigation
-Trabalho 2 da disciplina MC920- Introdução a Inteligência Artificial
+Trabalho 2 da disciplina MC906 - Introdução a Inteligência Artificial
