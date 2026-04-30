@@ -63,7 +63,6 @@ In this example, the last line `2` means `2` recharge vertices are chosen by per
 
 ## Notes
 
-- `limCost` is parsed but not used anywhere else in the current implementation.
 - The generated graph may contain parallel edges because `.allowMulti()` is enabled.
 - The recharge count is rounded down because integer division is used.
 
