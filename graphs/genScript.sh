@@ -10,7 +10,7 @@
 # Lper = percentual de arestas leves (peso <= (1 / 10) * Wmax)
 # Pper = percentual de vértices que são pontos de recarga
 #           N     M     Wmax    Pmax    Hper    Lper    Pper
-./generator 10    15    50      20      0       0       40   >  grafo1.txt
+./generator 10    15    5       10      0       0       40   >  grafo1.txt
 ./generator 10    15    50      20      0       0       10   >  grafo2.txt
 ./generator 100   300   100     50      0       0       20   >  grafo3.txt
 ./generator 100   300   100     50      10      10      20   >  grafo4.txt
