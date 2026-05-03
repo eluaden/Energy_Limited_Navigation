@@ -1,11 +1,15 @@
 from agent import Agent
 from interface.visualizer import run_visualizer
+from interface.graphics import generate_all
 import time
 
 # Graph 1: 10 vertices, 15 edges, 4 recharge stations
 # Goal: reach vertex 10 (the last vertex) from vertex 1
+
+GRAPH_ID = "1"
+
 agent = Agent(
-    graphId="1",
+    graphId=GRAPH_ID,
     capacity=10,
     timePenalty=1,
     costPenalty=2,
@@ -112,4 +116,11 @@ for i, r in enumerate(results):
 
 choice = int(input("\nDigite o índice: "))
 
+generate_all(
+    results[choice]["history"],
+    num_vertices=agent.graphModeling.num_vertices,
+    graph_id=GRAPH_ID,
+    config_name=f"config_{choice}",
+)
 run_visualizer(agent, results[choice]["history"])
+
