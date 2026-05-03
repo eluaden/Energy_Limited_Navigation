@@ -1,4 +1,5 @@
 from agent import Agent
+from interface.visualizer import run_visualizer
 import time
 
 # Graph 1: 10 vertices, 15 edges, 4 recharge stations
@@ -62,12 +63,29 @@ configs = [
     },
 ]
 
+results = []
+
+# ─────────────────────────────────────────────
+#  RUN Q-LEARNING CONFIGS
+# ─────────────────────────────────────────────
 for config in configs:
     start = time.time()
-    Q = agent.Qlearning(**config["params"])
+
+    Q, history = agent.Qlearning(**config["params"])
+
     elapsed = time.time() - start
     path, reward = agent.getPath(Q)
+
     print_result(config["label"], path, reward, elapsed)
+
+    results.append({
+        "label": config["label"],
+        "steps": len(path),
+        "reward": reward,
+        "Q": Q,
+        "history": history
+    })
+
 
 # ─────────────────────────────────────────────
 #  SUMMARY TABLE
@@ -78,12 +96,20 @@ print(f"{'='*60}")
 print(f"  {'Method':<48} {'Steps':>5} {'Reward':>8}")
 print(f"  {'-'*48} {'-'*5} {'-'*8}")
 
-# Re-run value iteration for the table
+# Value Iteration
 V = agent.valueIteration(gamma=GAMMA)
 vi_path, vi_reward = agent.getPathFromV(V, gamma=GAMMA)
 print(f"  {'Value Iteration (optimal)':<48} {len(vi_path):>5} {vi_reward:>8.2f}")
 
-for config in configs:
-    Q = agent.Qlearning(**config["params"])
-    path, reward = agent.getPath(Q)
-    print(f"  {config['label']:<48} {len(path):>5} {reward:>8.2f}")
+# Q-learning results (sem rodar de novo)
+for r in results:
+    print(f"  {r['label']:<48} {r['steps']:>5} {r['reward']:>8.2f}")
+
+print("\nEscolha qual configuração visualizar:\n")
+
+for i, r in enumerate(results):
+    print(f"{i} - {r['label']}")
+
+choice = int(input("\nDigite o índice: "))
+
+run_visualizer(agent, results[choice]["history"])

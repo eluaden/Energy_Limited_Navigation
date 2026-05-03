@@ -22,34 +22,69 @@ class Agent:
                 break
         return V
     
-    def Qlearning(self, gamma, alpha, episodes, max_steps=100, epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995):
-        Q = [[0.0] * len(st.neighborStates) for st in self.states]
+    def Qlearning(self, gamma, alpha, episodes, max_steps=100,
+              epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995,
+              record_every=1000):
 
-        for _ in range(episodes):
+        Q = [[0.0] * len(st.neighborStates) for st in self.states]
+        history = []
+
+        capacity = self.graphModeling.capacity
+
+        for episode in range(episodes):
             state = self.states[0]
             step = 0
+            should_record = (episode % record_every == 0)
+
+            episode_steps = []
 
             while state.neighborStates and step < max_steps:
                 step += 1
+
                 if random.random() < epsilon:
                     actionIndex = random.randint(0, len(state.neighborStates) - 1)
                 else:
-                    actionIndex = 0
-                    for i in range(1, len(state.neighborStates)):
-                        if Q[state.id][i] > Q[state.id][actionIndex]:
-                            actionIndex = i
+                    actionIndex = max(range(len(state.neighborStates)),
+                                    key=lambda i: Q[state.id][i])
 
                 nextState = state.neighborStates[actionIndex]
                 reward = state.neighborRewards[actionIndex]
 
                 best_next_q = max(Q[nextState.id]) if Q[nextState.id] else 0.0
-                Q[state.id][actionIndex] += alpha * (reward + (gamma * best_next_q) - Q[state.id][actionIndex])
+
+                Q[state.id][actionIndex] += alpha * (
+                    reward + gamma * best_next_q - Q[state.id][actionIndex]
+                )
+
+                if should_record:
+                    curr_vertex = state.id // (capacity + 1)
+                    curr_energy = state.id % (capacity + 1)
+                    next_vertex = nextState.id // (capacity + 1)
+                    next_energy = nextState.id % (capacity + 1)
+
+                    episode_steps.append({
+                        "step": step,
+                        "curr_vertex": curr_vertex,
+                        "curr_energy": curr_energy,
+                        "next_vertex": next_vertex,
+                        "next_energy": next_energy,
+                        "reward": reward,
+                        "epsilon": epsilon
+                    })
 
                 state = nextState
 
+            if should_record:
+                history.append({
+                    "episode": episode,
+                    "steps": episode_steps
+                })
+
             epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
-        return Q
+        return Q, history
+    
+
 
     def getPath(self, Q):
         """
