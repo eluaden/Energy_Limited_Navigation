@@ -26,21 +26,27 @@ class Agent:
               epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995,
               record_every=1000):
 
+
         Q = [[0.0] * len(st.neighborStates) for st in self.states]
         history = []
 
         capacity = self.graphModeling.capacity
 
-        for episode in range(episodes):
+        for episode in range(episodes + 1):
             state = self.states[0]
             step = 0
-            should_record = (episode % record_every == 0)
 
             episode_steps = []
+
+            # dados para visualização
+            should_record = (episode % record_every == 0)
+            total_reward = 0.0
+            total_td_error = 0.0
 
             while state.neighborStates and step < max_steps:
                 step += 1
 
+                # epsilon-greedy
                 if random.random() < epsilon:
                     actionIndex = random.randint(0, len(state.neighborStates) - 1)
                 else:
@@ -52,9 +58,10 @@ class Agent:
 
                 best_next_q = max(Q[nextState.id]) if Q[nextState.id] else 0.0
 
-                Q[state.id][actionIndex] += alpha * (
-                    reward + gamma * best_next_q - Q[state.id][actionIndex]
-                )
+                td_error = reward + gamma * best_next_q - Q[state.id][actionIndex]
+                Q[state.id][actionIndex] += alpha * td_error
+
+                total_td_error += abs(td_error)
 
                 if should_record:
                     curr_vertex = state.id // (capacity + 1)
@@ -72,18 +79,26 @@ class Agent:
                         "epsilon": epsilon
                     })
 
-                state = nextState
 
+                total_reward += reward
+
+                state = nextState
+                
             if should_record:
+                avg_td_error = total_td_error / step if step > 0 else 0.0
+
                 history.append({
                     "episode": episode,
-                    "steps": episode_steps
+                    "steps": episode_steps,
+                    "total_reward": total_reward,
+                    "num_steps": step,
+                    "epsilon": epsilon,
+                    "avg_td_error": avg_td_error,
                 })
 
             epsilon = max(epsilon_min, epsilon * epsilon_decay)
 
         return Q, history
-    
 
 
     def getPath(self, Q):

@@ -8,6 +8,7 @@ class GraphModeling:
         self.costPenalty = costPenalty
         self.reachGoalReward = reachGoalReward
 
+
     def vertexId(self, vertex, energy):
         return vertex * (self.capacity + 1) + energy
 
@@ -17,6 +18,7 @@ class GraphModeling:
             linhas = f.readlines()
             
             n, m = map(int, linhas[0].strip().split())
+            self.num_vertices = n
 
             for i in range(n):
                 for j in range(self.capacity + 1):
